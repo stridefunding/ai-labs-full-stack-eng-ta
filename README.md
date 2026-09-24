@@ -1,111 +1,63 @@
 # Full-stack take-home: Order import
 
-Build a full-stack application that helps an internal user safely import third-party order data into an existing database.
+Hey! Thanks for taking the time to build something with us.
 
-The user needs to inspect incoming data, understand potential problems, decide what to import, and understand the result.
+Your task: help an internal teammate import order data from a third-party partner with confidence.
 
-## Time and tools
+Give this **about four hours**. There's more here than anyone needs to finish in that time, and that's okay. Pick a useful slice, get it working end to end, and leave us a few notes about what's next.
 
-Spend approximately **four hours**. The problem is intentionally larger than this timebox: we do not expect every feature or edge case to be completed. Deliver the most useful coherent increment you can, and explain your priorities and remaining limitations.
+The stack is yours to choose. Libraries, docs, AI models, agents, and code generators are all welcome. Use whatever helps, and come ready to walk us through your code and decisions.
 
-Choose your language, frontend and backend frameworks, libraries, architecture, and development tools. AI models, agents, and code generators are welcome. You should understand, review, and be prepared to explain the work you submit.
+## What to build
 
-## Expected outcomes
+Build a full-stack app that lets someone:
 
-Your application should demonstrate that:
+- Inspect incoming orders and understand any concerns before importing.
+- Decide what to import, then save it to the supplied SQLite database (using a working copy).
+- See what happened and what needs their attention.
 
-- A user can inspect incoming data before importing it.
-- Questionable records are identified or handled safely, with enough information to support an informed decision.
-- Successful imports persist in the supplied SQLite database, or a working copy of it.
-- Repeated or failed actions do not silently duplicate orders, corrupt data, or overwrite valid existing information.
-- Unexpected input fails safely and understandably.
-- Someone else can run the application locally using your instructions.
+Keep existing data safe. Repeating an action or encountering a failure shouldn't silently duplicate or corrupt orders. When something unexpected arrives, help the user understand what went wrong.
 
-This partner has a history of frequent data-quality issues. The supplied files are representative samples, not an exhaustive catalog of those issues. We do not fully control the partner's format or contents, and future files may contain problems not represented here. Treat incoming data as untrusted and build the safest useful import workflow you can within the time available.
+The partner has had plenty of data-quality issues. These files are just samples: we don't control every detail of their exports, and future files may bring new surprises. Treat incoming data as untrusted, and be clear about what your app can safely handle.
 
-We may try additional plausible inputs when reviewing your work. We care about graceful behavior and explicit assumptions; there are no undisclosed business rules to discover.
+The interface and implementation are up to you. Plain and dependable is great. No need for authentication, deployment, fancy upload controls, or an AI feature. Use an existing CSV parser if you'd like; you don't need to support every possible CSV format.
 
-## Supplied data
-
-- `data/existing-orders.db`: a SQLite database containing 12 existing orders.
-- `data/partner-export-01.csv`
-- `data/partner-export-02.csv`
-
-Each CSV contains 30 data rows. All supplied records are fictional.
-
-The database contains one `orders` table:
-
-```sql
-CREATE TABLE orders (
-    id                INTEGER PRIMARY KEY,
-    external_order_id TEXT NOT NULL,
-    customer_email    TEXT NOT NULL,
-    amount_minor      INTEGER NOT NULL
-                      CHECK (
-                          typeof(amount_minor) = 'integer'
-                          AND amount_minor >= 0
-                      ),
-    currency          TEXT NOT NULL
-                      CHECK (currency IN ('USD', 'EUR', 'GBP')),
-    order_date        TEXT NOT NULL,
-    status            TEXT NOT NULL
-                      CHECK (
-                          status IN ('pending', 'paid', 'shipped', 'cancelled')
-                      ),
-    source            TEXT NOT NULL,
-    UNIQUE (source, external_order_id)
-);
-```
-
-These are the domain rules for this exercise:
-
-- An order is identified by the combination of `source` and `external_order_id`. These identifiers are case-sensitive; the same external ID can belong to different sources.
-- All fields other than the generated internal `id` are required.
-- CSV `order_amount` values represent major currency units—for example, `12.50` means 1,250 minor units. The database stores integer minor units in `amount_minor`.
-- Supported currencies are `USD`, `EUR`, and `GBP`. Amounts must be nonnegative; zero is allowed. Currency conversion is outside scope.
-- Order dates represent calendar dates, with `YYYY-MM-DD` as the expected format. No timezone interpretation is needed.
-- Supported statuses are `pending`, `paid`, `shipped`, and `cancelled`. No status-transition rules are required.
-
-The expected CSV columns are:
+## What's in the box
 
 ```text
-external_order_id,customer_email,order_amount,currency,order_date,status,source
+data/
+  existing-orders.db      # 12 orders in one orders table
+  partner-export-01.csv   # 30 rows
+  partner-export-02.csv   # 30 rows
 ```
 
-These rules describe accepted order data, not a guarantee that incoming files comply with them. Document any additional assumptions.
+All records are fictional. A few rules to save you guessing:
 
-You may modify or extend the database schema. Keep the supplied database and CSV files unchanged as reproducible inputs, use a working database copy, and document how to initialize or reset it.
+- `source` + `external_order_id` identifies an order. Both are case-sensitive; different sources can use the same external ID.
+- Every order field is required; the database generates the internal `id`.
+- CSV `order_amount` is in major currency units: `12.50` becomes `1250` in the database's integer `amount_minor` field. Amounts must be nonnegative; zero is fine.
+- Currencies are `USD`, `EUR`, and `GBP`. No currency conversion needed.
+- `order_date` is a calendar date in `YYYY-MM-DD` format. No timezones needed.
+- Statuses are `pending`, `paid`, `shipped`, and `cancelled`. No status-transition rules needed.
 
-## Scope and judgment
+Those are the rules for accepted orders, not promises about incoming files. Note any other assumptions you make.
 
-Decide how the interface works, how users select or approve imports, and how to handle records that cannot safely be imported. You may narrow supported inputs if you make the limits clear and handle unsupported input safely.
+Keep the supplied files unchanged and work with a database copy. You're welcome to change or extend its schema; just explain how to initialize or reset it.
 
-We care about a working end-to-end increment, frontend and backend fundamentals, persistence, validation, technical safety, and your judgment about priorities, testing, and debugging. A plain, dependable application is sufficient; visual polish is not a priority.
+## Leave us a short handoff
 
-Authentication, deployment, cloud infrastructure, drag-and-drop upload, multiple user roles, real-time processing, a spreadsheet-style interface, and an AI integration are not required. You do not need to write a custom CSV parser or support every possible CSV format.
+In your repo or PR, tell us how to run the app locally, what you built, and what you tested or verified. Include your main assumptions, tradeoffs, limitations, and what you'd tackle next.
 
-## Documentation
+If you used AI, briefly tell us how and what you independently checked. A few useful notes are plenty—no process diary needed.
 
-In your repository or pull request, include:
-
-- Local setup and run instructions.
-- A short explanation of what you built.
-- Important assumptions, tradeoffs, and known limitations.
-- What you tested or otherwise verified.
-- What you would do next.
-- How you used AI, if applicable, and what you independently reviewed or verified.
-
-Keep this brief. We do not need a process diary.
-
-## Submission
+## Getting started and sending it back
 
 1. Click **Use this template → Create a new repository**.
-2. Create a **private** repository under your **personal GitHub account**. Do not use an employer, school, or other organization account.
-3. Keep the original template state on `main`.
-4. Create a branch named `submission` from `main` and commit your work there.
-5. Add **`StrideTechHiring`** as a collaborator in your repository settings.
-6. Open a pull request from `submission` into `main`. Leave it **unmerged**.
-7. Reply to the original assessment email with:
+2. Create a **private** repo under your **personal GitHub account**; organization policies can get in the way of sharing access.
+3. Leave `main` at the original template state. Create a branch named `submission` from it and do your work there.
+4. Add **`StrideTechHiring`** as a collaborator in your repo settings.
+5. Open a PR from `submission` into `main` and leave it **unmerged**.
+6. Reply to the original assessment email with:
 
 ```text
 READY FOR REVIEW
@@ -115,4 +67,4 @@ Private repository URL:
 Pull request URL:
 ```
 
-Once you send the email, leave the submission branch unchanged until we confirm receipt. We will verify access, record the pull request's exact head commit SHA, download that commit, and confirm receipt. That recorded commit is your official submission.
+After emailing, hold off on further changes until we confirm receipt. We'll save the exact commit at the head of your PR as your official submission and let you know we've got it.
