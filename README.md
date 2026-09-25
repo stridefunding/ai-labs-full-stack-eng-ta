@@ -56,6 +56,13 @@ If you used AI, briefly tell us how and what you independently checked. A few us
 
 1. Click **Use this template → Create a new repository**.
 2. Create a **private** repo under your **personal GitHub account**; organization policies can get in the way of sharing access.
+
+   Prefer the terminal? With the [GitHub CLI](https://cli.github.com/) signed into your personal account, you can create and clone the repo in one command. Choose any repo name you like:
+
+   ```sh
+   gh repo create my-ai-labs-assessment --template stridefunding/ai-labs-full-stack-eng-ta --private --clone
+   ```
+
 3. Leave `main` at the original template state. Create a branch named `submission` from it and do your work there.
 4. Add **`StrideTechHiring`** as a collaborator in your repo settings.
 5. Open a PR from `submission` into `main` and leave it **unmerged**.
